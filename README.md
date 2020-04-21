@@ -1,4 +1,4 @@
-# escutil
+# ecsutil
 
 Tool to simplify deployments to ECS/Fargate. 
 
