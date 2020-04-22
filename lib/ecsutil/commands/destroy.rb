@@ -14,5 +14,6 @@ class ECSUtil::Commands::DestroyCommand < ECSUtil::Command
     deregister_tasks
     deregister_scheduled_tasks
     deregister_services
+    deregister_secrets
   end
 end

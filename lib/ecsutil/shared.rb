@@ -7,7 +7,7 @@ module ECSUtil
     end
 
     def load_secrets
-      step_info "Loading secrets"
+      step_info "Loading secrets from %s", config["secrets_prefix"]
       @config["secrets_data"] = fetch_parameter_store_keys(config["secrets_prefix"])
     end
 
@@ -49,6 +49,13 @@ module ECSUtil
 
         step_info "Deleting service: #{service}"
         delete_service(config, service)
+      end
+    end
+
+    def deregister_secrets
+      (config["secrets_data"] || []).each do |secret|
+        step_info "Removing %s", secret[:name]
+        aws_call("ssm", "delete-parameter", "--name=#{secret[:name]}")
       end
     end
   end

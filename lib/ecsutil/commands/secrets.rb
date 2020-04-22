@@ -13,6 +13,10 @@ class ECSUtil::Commands::SecretsCommand < ECSUtil::Command
     when "live"
       load_secrets
       show_live_secrets
+    when "delete"
+      confirm
+      load_secrets
+      deregister_secrets
     else
       fail "Invalid action: #{action}"
     end
