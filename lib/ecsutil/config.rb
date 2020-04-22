@@ -14,7 +14,13 @@ module ECSUtil
         fail "App env is required"    unless config["env"]
         fail "Cluster is required"    unless config["cluster"]
         fail "Repository is required" unless config["repository"]
+        
+        # Check AWS configuration
+        if !config["aws_profile"] && !ENV["AWS_PROFILE"]
+          fail "AWS profile is not set! Set 'aws_profile' var in config or use AWS_PROFILE env var!"
+        end
 
+        # Set stage and namespace
         config["stage"] ||= stage
         config["namespace"] ||= sprintf("%s-%s", config["app"], config["env"])
 

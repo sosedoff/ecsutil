@@ -76,6 +76,10 @@ module ECSUtil
 
       outputs = {}
       terraform_dir = File.join(@dir, "terraform/#{@stage}")
+
+      unless File.exists?(@config_path)
+        terminate("Config file #{@config_path} does not exist!")
+      end
       
       if File.exists?(terraform_dir)
         outputs = read_terraform_outputs(terraform_dir)

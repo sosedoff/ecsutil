@@ -6,6 +6,8 @@ module ECSUtil
       outputs = {}
 
       Dir.chdir(dir) do
+        puts "----> Loading terraform outputs from #{dir}"
+
         result = `terraform output -json`.strip
         unless $?.success?
           fail "Terraform error: #{result}"
