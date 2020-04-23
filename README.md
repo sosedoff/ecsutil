@@ -1,21 +1,20 @@
 # ecsutil
 
-Tool to simplify deployments to ECS/Fargate. 
+Tool to simplify deployments to ECS/Fargate
 
-Key concepts:
+## Overview
 
-- Infrastructure is managed by Terraform
-- Task definitions/scheduled tasks/services are NOT part of Terraform
-- YAML config for a service, ability to reference Terraform outputs
+- You bring your own infrastructure resources using Terraform (optional)
+- `ecsutil` will manage ECS task definitions, scheduled tasks, services and secrets
+- Deployment config is YAML-based with ability to reference Terraform outputs
 - Cloud secrets are stored in AWS Parameter Store, encrypted by KMS
 - Local secrets are encrypted via Ansible Vault
-
-Why not Kubernetes? You don't need Kube for simple deployments. 
 
 ## Requirements
 
 - AWS CLI
-- Ansible CLI
+- Ansible (optional)
+- Terraform (optional)
 
 ## Usage
 
@@ -82,4 +81,39 @@ services:
       target_group: load balancer target group ARN
       container_name: web
       container_port: 4567
+```
+
+### Reference Terraform outputs
+
+Given you have `./terraform/(staging/production)`that contains all stage-specific
+configuration and resources, you can add an output file `outputs.tf` that might be
+referenced in the deployment config. Here's an example:
+
+```tf
+// Output for subnets
+// YOu can use regular terraform resources here
+output "subnets" {
+  value = [
+    "subnet-a",
+    "subnet-b",
+    "subnet-c"
+  ]
+}
+
+// Output for "web" security group
+output "sg_web" {
+  value = aws_security_group.web.id
+}
+```
+
+Once `terraform apply` is executed your state file (or remote state) will include 
+the `sg_web` output. We can referene it in the config:
+
+```yaml
+# ...
+subnets: $tf.subnets
+# ....
+tasks:
+  web:
+    security_groups: $tf.sg_web
 ```
