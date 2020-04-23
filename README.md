@@ -8,7 +8,7 @@ Tool to simplify deployments to ECS/Fargate
 - `ecsutil` will manage ECS task definitions, scheduled tasks, services and secrets
 - Deployment config is YAML-based with ability to reference Terraform outputs
 - Cloud secrets are stored in AWS Parameter Store, encrypted by KMS
-- Local secrets are encrypted via Ansible Vault
+- Local secrets are encrypted via Ansible Vault (optional)
 
 ## Requirements
 
@@ -91,7 +91,7 @@ referenced in the deployment config. Here's an example:
 
 ```tf
 // Output for subnets
-// YOu can use regular terraform resources here
+// You can use regular terraform resources here
 output "subnets" {
   value = [
     "subnet-a",
@@ -107,7 +107,7 @@ output "sg_web" {
 ```
 
 Once `terraform apply` is executed your state file (or remote state) will include 
-the `sg_web` output. We can referene it in the config:
+the `sg_web` output. We can reference it in the config:
 
 ```yaml
 # ...
