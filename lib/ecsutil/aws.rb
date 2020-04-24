@@ -50,7 +50,7 @@ module ECSUtil
               PlatformVersion: "LATEST",
               NetworkConfiguration: {
                 awsvpcConfiguration: {
-                  Subnets: config["subnets"],
+                  Subnets: [config["subnets"]].flatten,
                   SecurityGroups: [task["security_groups"]].flatten,
                   AssignPublicIp: "ENABLED"
                 }
@@ -194,7 +194,7 @@ module ECSUtil
         },
         networkConfiguration: {
           awsvpcConfiguration: {
-            subnets: config["subnets"],
+            subnets: [config["subnets"]].flatten,
             securityGroups: [task["security_groups"]].flatten,
             assignPublicIp: "ENABLED"
           }

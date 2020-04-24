@@ -21,7 +21,7 @@ class ECSUtil::Commands::RunCommand < ECSUtil::Command
       launchType: "FARGATE",
       networkConfiguration: {
         awsvpcConfiguration: {
-          subnets: config["subnets"],
+          subnets: [config["subnets"]].flatten,
           securityGroups: [task["security_groups"]].flatten,
           "assignPublicIp": "ENABLED"
         }
