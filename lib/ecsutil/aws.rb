@@ -100,7 +100,7 @@ module ECSUtil
       end
 
       port_mappings = nil
-      if ports = task["ports"]
+      if ports = [task["ports"]].flatten.compact.uniq
         port_mappings = ports.map do |p|
           {
             containerPort: p,

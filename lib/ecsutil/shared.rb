@@ -17,7 +17,12 @@ module ECSUtil
     end
 
     def deregister_tasks
+      prefix = sprintf("%s-%s", config["app"], config["env"])
+
       @existing_tasks.each do |arn|
+        name = arn.split("/", 2).last
+        next unless name.start_with?(prefix)
+
         step_info "Deregistering #{arn}"
         degerister_task_definition(arn)
       end

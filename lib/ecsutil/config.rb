@@ -20,6 +20,9 @@ module ECSUtil
           fail "AWS profile is not set! Set 'aws_profile' var in config or use AWS_PROFILE env var!"
         end
 
+        # Override environment variable in case if it was set
+        ENV["AWS_PROFILE"] = config["aws_profile"]
+
         # Set stage and namespace
         config["stage"] ||= stage
         config["namespace"] ||= sprintf("%s-%s", config["app"], config["env"])
