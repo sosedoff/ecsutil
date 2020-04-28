@@ -24,6 +24,7 @@ module ECSUtil
         ENV["AWS_PROFILE"] = config["aws_profile"]
 
         # Set stage and namespace
+        config["user"] ||= `whoami`.strip
         config["stage"] ||= stage
         config["namespace"] ||= sprintf("%s-%s", config["app"], config["env"])
 

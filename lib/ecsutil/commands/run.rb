@@ -15,7 +15,7 @@ class ECSUtil::Commands::RunCommand < ECSUtil::Command
     end
 
     opts = {
-      startedBy: `whoami`.strip,
+      startedBy: config["user"],
       cluster: config["cluster"],
       taskDefinition: arn,
       launchType: "FARGATE",
