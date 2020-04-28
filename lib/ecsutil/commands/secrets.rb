@@ -2,13 +2,10 @@ class ECSUtil::Commands::SecretsCommand < ECSUtil::Command
   def run
     case action
     when nil, "show"
-      step_info "Loading local secrets"
       show_local_secrets
     when "edit"
       edit_secrets
     when "push"
-      confirm("Will push secrets live to #{config["secrets_prefix"]}")
-      load_secrets
       push_secrets
     when "live"
       load_secrets
@@ -25,10 +22,11 @@ class ECSUtil::Commands::SecretsCommand < ECSUtil::Command
   private
 
   def load_local_secrets
-    vault_call("view", config["secrets_file"], vault_id: config["secrets_vaultpass"])
+    vault_read(config["secrets_file"], config["secrets_vaultpass"])
   end
 
   def show_local_secrets
+    step_info "Loading secrets from %s", config["secrets_file"]
     puts load_local_secrets
   end
 
@@ -44,13 +42,14 @@ class ECSUtil::Commands::SecretsCommand < ECSUtil::Command
   end
 
   def edit_secrets
-    vault_call("edit", config["secrets_file"], {
-      vault_id: config["secrets_vaultpass"],
-      shellout: true
-    })
+    step_info "Editing secrets file %s", config["secrets_file"]
+    vault_edit(config["secrets_file"], config["secrets_vaultpass"])
   end
 
   def push_secrets
+    confirm("Will push secrets live to #{config["secrets_prefix"]}")
+    load_secrets
+
     local = parse_env_data(load_local_secrets)
     live  = config["secrets_data"].map { |item| [item[:key], item[:value]] }.to_h
 
