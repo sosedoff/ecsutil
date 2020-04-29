@@ -5,6 +5,7 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
     init_password_file
     check_password_contents
     check_gitignore
+    init_secrets
     init_terraform
   end
 
@@ -16,6 +17,10 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
 
   def gitignore_path
     @gitignore_path ||= File.join(Dir.pwd, ".gitignore")
+  end
+
+  def secrets_path
+    @secrets_path ||= File.join(Dir.pwd, "deploy", config.stage,  "secrets")
   end
 
   def terraform_path
@@ -51,6 +56,19 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
     step_info "Adding vaultpass to .gitignore"
     data += "\nvaultpass"
     File.write(gitignore_path, data.strip + "\n")
+  end
+
+  def init_secrets
+    step_info "Setting up secrets file at #{secrets_path}"
+
+    FileUtils.mkdir_p(File.dirname(secrets_path))
+
+    if File.exists?(secrets_path)
+      step_info "Secrets file already exists, skipping..."
+      return
+    end
+
+    vault_write(secrets_path, config.secrets_vaultpass, "# This is your secrets file")
   end
 
   def init_terraform
