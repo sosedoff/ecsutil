@@ -3,6 +3,9 @@ require "hashie"
 
 module ECSUtil
   class Config < Hashie::Mash
+    # Do not show any Hashie warnings
+    disable_warnings
+
     def self.read(path, stage, outputs = {})
       data = File.read(path).gsub(/(\$tf.([\w]+))+/i) do |m|
         key = $2
