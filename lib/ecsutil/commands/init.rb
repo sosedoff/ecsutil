@@ -5,6 +5,7 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
     init_password_file
     check_password_contents
     check_gitignore
+    init_terraform
   end
 
   private
@@ -15,6 +16,10 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
 
   def gitignore_path
     @gitignore_path ||= File.join(Dir.pwd, ".gitignore")
+  end
+
+  def terraform_path
+    @terraform_path ||= File.join(Dir.pwd, "terraform", config.stage)
   end
 
   def init_password_file
@@ -46,5 +51,18 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
     step_info "Adding vaultpass to .gitignore"
     data += "\nvaultpass"
     File.write(gitignore_path, data.strip + "\n")
+  end
+
+  def init_terraform
+    step_info "Checking if Terraform is installed"
+    if `which terraform`.strip.empty?
+      step_info "Terraform is not found, skipping..."
+      return
+    end
+
+    unless File.exists?(terraform_path)
+      step_info "Setting up Terraform directory at #{terraform_path}"
+      FileUtils.mkdir_p(terraform_path)
+    end
   end
 end
