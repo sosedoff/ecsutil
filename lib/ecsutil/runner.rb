@@ -2,6 +2,8 @@ require "ecsutil/config"
 require "ecsutil/terraform"
 require "ecsutil/shared"
 
+require "ecsutil/commands/help"
+require "ecsutil/commands/init"
 require "ecsutil/commands/deploy"
 require "ecsutil/commands/run"
 require "ecsutil/commands/scale"
@@ -31,39 +33,28 @@ module ECSUtil
       return terminate("Please provide stage") unless @stage
 
       config = read_config
-
-      case @command
-      when nil, "help"
-        print_help
-      when "deploy"
-        ECSUtil::Commands::DeployCommand.new(config, @action, @args).run
-      when "run"
-        ECSUtil::Commands::RunCommand.new(config, @action, @args).run
-      when "scale"
-        ECSUtil::Commands::ScaleCommand.new(config, @action, @args).run
-      when "status"
-        ECSUtil::Commands::StatusCommand.new(config, @action, @args).run
-      when "secrets"
-        ECSUtil::Commands::SecretsCommand.new(config, @action, @args).run
-      when "destroy"
-        ECSUtil::Commands::DestroyCommand.new(config, @action, @args).run
-      else
+      
+      klass = command_class(@command)
+      if !klass
         terminate "Invalid command: #{@command}"
-        print_help
       end
+
+      klass.new(config, @action, @args).run
     end
 
     private
 
-    def print_help
-      puts "Usage: escutil <stage> <command>"
-      puts "Available commands:"
-      puts "* deploy  - Perform a deployment"
-      puts "* run     - Run a task"
-      puts "* scale   - Change service quantities"
-      puts "* status  - Show current status"
-      puts "* secrets - Manage secrets"
-      puts "* destroy - Delete all cloud resources"
+    def command_class(name = "help")
+      {
+        help:    ECSUtil::Commands::HelpCommand,
+        init:    ECSUtil::Commands::InitCommand,
+        deploy:  ECSUtil::Commands::DeployCommand,
+        run:     ECSUtil::Commands::RunCommand,
+        scale:   ECSUtil::Commands::ScaleCommand,
+        status:  ECSUtil::Commands::StatusCommand,
+        secrets: ECSUtil::Commands::SecretsCommand,
+        destroy: ECSUtil::Commands::DestroyCommand,
+      }[name.to_sym]
     end
 
     def terminate(message)
@@ -78,7 +69,38 @@ module ECSUtil
       terraform_dir = File.join(@dir, "terraform/#{@stage}")
 
       unless File.exists?(@config_path)
-        terminate("Config file #{@config_path} does not exist!")
+        puts "Config file #{@config_path} does not exist, creating..."
+        
+        example = <<~END
+          aws_profile: your AWS CLI profile
+          
+          app: #{File.basename(@dir)}
+          env: #{@stage}
+
+          cluster: #{@stage}
+          repository: your ECR repository
+          subnets:
+            - subnet 1
+            - subnet 2
+
+          roles:
+            task: ECS task role ARN
+            execution: ECS execution role ARN
+
+          tasks:
+            example:
+              security_groups:
+                - sg1
+                - sg2
+              ports:
+                - 500
+              awslogs:
+                region: us-east-1
+                group: /ecs/#{File.basename(@dir)}/#{@stage}
+        END
+
+        FileUtils.mkdir_p(File.dirname(@config_path))
+        File.write(@config_path, example)
       end
       
       if File.exists?(terraform_dir)

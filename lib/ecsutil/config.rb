@@ -1,7 +1,8 @@
 require "yaml"
+require "hashie"
 
 module ECSUtil
-  class Config
+  class Config < Hashie::Mash
     def self.read(path, stage, outputs = {})
       data = File.read(path).gsub(/(\$tf.([\w]+))+/i) do |m|
         key = $2
@@ -9,7 +10,7 @@ module ECSUtil
         outputs[key]
       end
 
-      YAML.load(data).tap do |config|
+      result = YAML.load(data).tap do |config|
         fail "App name is required"   unless config["app"]
         fail "App env is required"    unless config["env"]
         fail "Cluster is required"    unless config["cluster"]
@@ -33,21 +34,24 @@ module ECSUtil
         config["scheduled_tasks"] ||= {}
         config["services"] ||= {}
 
+        # Parent dir
+        parent_dir = File.expand_path(File.join(File.dirname(path), ".."))
+
         # Set secrets
-        if outputs["kms_key"]
-          config.merge!(
-            "secrets_vaultpass" => "vaultpass",
-            "secrets_file"      => File.join(File.dirname(path), "#{stage}/secrets"),
-            "secrets_key"       => outputs["kms_key"],
-            "secrets_prefix"    => sprintf("/%s", config["namespace"]),
-            "secrets_data"      => {}
-          )
-        end
+        config.merge!(
+          "secrets_vaultpass" => File.join(parent_dir, "vaultpass"),
+          "secrets_file"      => File.join(File.dirname(path), "#{stage}/secrets"),
+          "secrets_key"       => outputs["kms_key"],
+          "secrets_prefix"    => sprintf("/%s", config["namespace"]),
+          "secrets_data"      => {}
+        )
 
         # Set default vars
         config["git_commit"] ||= `git rev-parse HEAD`.strip
         config["git_branch"] ||= `git rev-parse --abbrev-ref HEAD`.strip
       end
+
+      Config.new(result)
     end
   end
 end
