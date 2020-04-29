@@ -13,7 +13,6 @@ Tool to simplify deployments to ECS/Fargate
 ## Requirements
 
 - AWS CLI
-- Ansible (optional)
 - Terraform (optional)
 
 ## Usage

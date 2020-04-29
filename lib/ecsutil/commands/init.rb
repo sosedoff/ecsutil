@@ -2,6 +2,7 @@ require "securerandom"
 
 class ECSUtil::Commands::InitCommand < ECSUtil::Command
   def run
+    check_dependencies
     init_password_file
     check_password_contents
     check_gitignore
@@ -25,6 +26,13 @@ class ECSUtil::Commands::InitCommand < ECSUtil::Command
 
   def terraform_path
     @terraform_path ||= File.join(Dir.pwd, "terraform", config.stage)
+  end
+
+  def check_dependencies
+    step_info "Checking AWS CLI"
+    if `which aws`.strip.empty?
+      terminate("AWS CLI is not installed")
+    end
   end
 
   def init_password_file
