@@ -29,8 +29,8 @@ module ECSUtil
     end
 
     def run
-      return print_help unless @command
-      return terminate("Please provide stage") unless @stage
+      return terminate("Please provide command") unless @command
+      return terminate("Please provide stage")   unless @stage
 
       config = read_config
       
