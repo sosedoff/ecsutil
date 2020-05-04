@@ -6,14 +6,14 @@ module ECSUtil
     def vault_read(path, password_path)
       Ansible::Vault.read(
         path: path,
-        password: File.read(password_path)
+        password: File.read(password_path).strip
       )
     end
 
     def vault_write(path, password_path, data)
       Ansible::Vault.write(
         path: path,
-        password: File.read(password_path),
+        password: File.read(password_path).strip,
         plaintext: data
       )
     end
