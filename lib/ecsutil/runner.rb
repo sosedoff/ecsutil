@@ -29,8 +29,8 @@ module ECSUtil
     end
 
     def run
-      return terminate("Please provide command") unless @command
-      return terminate("Please provide stage")   unless @stage
+      return print_help unless @command
+      return terminate("Please provide stage") unless @stage
 
       config = read_config
       
@@ -55,6 +55,10 @@ module ECSUtil
         secrets: ECSUtil::Commands::SecretsCommand,
         destroy: ECSUtil::Commands::DestroyCommand,
       }[name.to_sym]
+    end
+
+    def print_help
+      command_class("help").new(nil, nil, nil).run
     end
 
     def terminate(message)

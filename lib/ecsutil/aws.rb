@@ -238,6 +238,10 @@ module ECSUtil
       result["services"].first
     end
 
+    def describe_services(config, names)
+      aws_call("ecs", "describe-services", "--cluster=#{config.cluster} --services=#{names.join(",")}")["services"]
+    end
+
     def create_service(config, service_name)
       aws_call("ecs", "create-service", generate_service(config, service_name))
     end
