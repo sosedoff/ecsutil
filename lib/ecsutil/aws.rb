@@ -110,6 +110,11 @@ module ECSUtil
         end
       end
 
+      image = config["repository"].to_s
+      unless image.split("/").last.include?(":")
+        image << ":#{config["git_commit"]}"
+      end
+
       {
         family: "#{service_name}-#{service_env}-#{task_name}",
         taskRoleArn: config["roles"]["task"],
@@ -122,7 +127,7 @@ module ECSUtil
           {
             name: task_name,
             command: task["command"] ? task["command"].split(" ") : nil,
-            image: "#{config["repository"]}:#{config["git_commit"]}",
+            image: image,
             environment: env,
             secrets: secrets,
             logConfiguration: log_config,
