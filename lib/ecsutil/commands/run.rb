@@ -27,7 +27,7 @@ class ECSUtil::Commands::RunCommand < ECSUtil::Command
         }
       }
     }
-    
+
     if args && args.any?
       step_info "Using override command: #{args}"
 

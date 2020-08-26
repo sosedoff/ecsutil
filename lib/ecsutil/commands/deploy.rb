@@ -56,7 +56,7 @@ class ECSUtil::Commands::DeployCommand < ECSUtil::Command
       config["services"].each_pair do |service_name, service|
         full_name = sprintf("%s-%s-%s", config["app"], config["env"], service_name)
         service["exists"] = @existing_services.include?(full_name)
-  
+
         if service["exists"]
           step_info "Updating service #{service_name}"
           update_service(config, service_name)

@@ -35,7 +35,7 @@ class ECSUtil::Commands::SecretsCommand < ECSUtil::Command
       puts "No secrets found for prefix #{config["secrets_prefix"]}"
       return
     end
-    
+
     config["secrets_data"].each do |secret|
       printf("%s=%s\n", secret[:key], secret[:value])
     end
